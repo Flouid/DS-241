@@ -1,0 +1,180 @@
+---
+title: "Predicting enrollment for MA132"
+author: "Louis Keith"
+date: "21 Sep 2020"
+output:
+  html_document:
+    df_print: paged
+---
+
+The intention of this analysis is to predict the future enrollment for the MA132 course based of previous data.
+
+
+## Load packages
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(janitor)
+library(readxl)
+library(skimr)
+library(summarytools)
+```
+
+## Read and clean the data
+
+We have a spreadsheet containing the Clarkson Academic Department Enrollment. All we need to do here is read the data in and then use a function to make the names complient with tida data. 
+
+```{r}
+dfa= read_excel("CU_ACAD_DEPT_ENRL.xlsx") %>% clean_names()
+```
+
+The skim function offers a good way to get a look at the structure of the data set. 
+
+```{r}
+skim(dfa)
+```
+
+From this we can tell that there are 3343 rows with 12 attributes. We get a look at what each of those attributes are, as well as the mean and standard deviation of enrollment.
+
+## Tidy the data
+
+Now we want to make the data compliant with tidy data standards. To do this we need to separate column term2 into two separate variables, one for the time of year and one for the year. 
+
+```{r}
+dfb = dfa %>% separate(col=term2, into=c("semester", "year"), sep=" ")
+```
+
+## Clean and subset the data
+
+Now, because we are only interested in predicting enrollment for MA 132 next semester, there is a lot of superflous data that we can filter out.
+
+Get rid of the following variables:
+
+* acad_org
+* current_status
+* instructor
+* course_id
+
+Filtering to only include:
+
+* MA131 and MA132
+* Fall and Spring semesters
+* Lectures
+
+Removing any duplicate rows
+Convert the years from character string to a numeric value
+
+```{r}
+dfc = dfb %>% 
+  select(-acad_org, -current_status, -instructor, -course_id) %>%
+  filter(subject=="MA", component=="LEC", 
+         catalog %in% c("131", "132"), 
+         semester %in% c("Fall", "Spring")) %>%
+  distinct() %>%
+  mutate(year=as.numeric(year))
+```
+
+There are also columns which are not useful to this particular analysis. 
+
+Remove the columns we no longer need
+
+* subject
+* component
+* title
+
+```{r}
+dfd = dfc %>%
+  select(-c(subject, component, title))
+```
+
+## Summarize the data
+
+Find out the total enrollment for each section in each semester of each year. We can do this by grouping by catalog, semester, and year. 
+
+```{r, warning=FALSE, message=FALSE}
+dfe = dfd %>% group_by(catalog, semester, year) %>%
+  summarize(tot_enrl=sum(tot_enrl))
+```
+
+## Some initial exploration graphs
+
+First we can look Spring enrollment over the period of time that we have data for to get a sense of how much it varies over time. 
+
+```{r}
+dfe %>% filter(catalog=="132", semester=="Spring") %>%
+  ggplot(aes(x = year, y = tot_enrl)) + geom_col()
+```
+
+Here we can see that there is a good degree of variability, 2018 had about 350 students enrolled while 2016 had about 450 students enrolled. That's a difference of nearly 30% and is enough students to fill an entire section. 
+
+Now we can look at whether or not Spring enrollment in 132 is correlated with fall enrollment in 131. 
+
+In order to do this, we need to make a "wide" data frame with data pairs that match MA 131 with MA 132. We also want to look at the previous fall and not the fall of the same year, as it technically occurs after the Spring. finally, we also wan't to remove 2021 as there is currently no data for that year. 
+
+```{r}
+dff = dfe %>% pivot_wider(values_from = tot_enrl, names_from = c(semester, catalog)) %>%
+  clean_names() %>%
+  mutate(prev_131_fall = lag(fall_131), prev_132_fall = lag(fall_132)) %>%
+  filter(year != 2021)
+```
+
+Now that we have the data set we need, we can look at it in a scatter plot to see if there a correlation
+
+```{r, warning=FALSE, message=FALSE}
+dff %>% ggplot(aes(x = prev_131_fall, y = spring_132)) + geom_point()
+```
+
+The data appears to be fairly well correlated with a linear relationship. The only errant point appears to be the one all the way to the right and shifted down a little bit, we can look at the data table to find which point it was and remake the graph to identify it.
+
+```{r warning=FALSE, message=FALSE}
+dff %>% ggplot(aes(x = prev_131_fall, y = spring_132, label = year, color = (year <= 2015))) + geom_point()
+```
+
+From this we can see that 2015 was the year with the weird data point. Ideally for a more rigorous analysis we would have data for more years, so that we can see if this was a normal variation or the result of some strange event. 
+
+If we wanted to assume that was the case, we can remove the point and fit a linear regression model in order to achieve the goal of having an equation that predicts enrollment. 
+
+```{r}
+dff = dff %>% filter(year != 2015)
+```
+
+The only concern is the linear regression models (at least the ones I know how to do easily) are generally not intended for extrapolation, only interpolation. This means that this should not be actually used as a rigorous prediction of future enrollment.
+
+```{r}
+lin_model = lm(data = dff, formula = spring_132 ~ prev_131_fall)
+summary(lin_model)
+```
+
+This sort of falls out of the scope of this course and into statistics but its worthwhile nonetheless. We can see that the p-value is quite low for both the intercept and slope, and the R-squared is very high. I won't go into residual analysis for this particular problem but we now have an equation for predicting enrollment.
+
+$y^{hat} = -137.56 + 1.11x$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,361 @@
+---
+title: "Lab 04 - La Quinta is Spanish for 'next to Denny's', Pt. 1"
+author: "Louis Keith"
+subtitle: Visualizing spatial data
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+  tufte::tufte_html: default
+---
+
+The late comedian Mitch Hedberg once made a joke that "'La Quinta' is Spanish for 'Next to Denny's'". The purpose of this code is to put a quantitative analysis on the truth of that statement, to find out how well it holds up, and where. 
+
+In order to do this, we will include a few packages that will be useful to our analysis.
+
+```{r include=FALSE}
+library(knitr)
+options(
+  htmltools.dir.version = FALSE, # for blogdown
+  show.signif.stars = FALSE,     # for regression output
+  digits = 2
+  )
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+```{r fig.margin=TRUE, eval=TRUE, echo=FALSE}
+include_graphics("img/mitch-hedgeberg-lqd.jpg")
+```
+
+Have you ever taken a road trip in the US and thought to yourself "I wonder what La Quinta means". Well, the late comedian [Mitch Hedberg](https://en.wikipedia.org/wiki/Mitch_Hedberg) thinks it's Spanish for *next to Denny's*.
+
+If you're not familiar with these two establishments, [Denny's](https://www.dennys.com/) is a casual diner chain that is open 24 hours and [La Quinta Inn and Suites](http://www.lq.com/) is a hotel chain.
+
+These two establishments tend to be clustered together, or at least this observation is a joke made famous by Mitch Hedberg. In this lab we explore the validity of this joke and along the way learn some more data wrangling and tips for visualizing spatial data.
+
+The inspiration for this lab comes from a blog post by John Reiser on his *new jersey geographer* blog. You can read that analysis [here](http://njgeo.org/2014/01/30/mitch-hedberg-and-gis/). Reiser's blog post focuses on scraping data from Denny's and La Quinta Inn and Suites websites using Python. In this lab we focus on visualization and analysis of these data. However note that the data scraping was also done in R, and we we will discuss web scraping using R later in the course. But for now we focus on the data that has already been scraped and tidied for you.
+
+## Getting started
+
+### Packages
+
+In this lab we will use the **tidyverse** and **dsbox** packages.
+
+```{r eval = TRUE, message = FALSE}
+library(tidyverse) 
+library(dsbox) 
+```
+
+## The data
+
+The datasets we'll use are called `dennys` and `laquinta` from the **dsbox** package. Note that these data were scraped from [here](https://locations.dennys.com/) and [here](https://www.lq.com/en/findandbook/hotel-listings.html), respectively.
+
+To help with our analysis we will also use a dataset on US states:
+
+```{r warning=FALSE, message=FALSE}
+states <- read_csv("data/states.csv")
+```
+
+Each observation in this dataset represents a state, including DC. Along with the name of the state we have the two-letter abbreviation and we have the geographic area of the state (in square miles).
+
+## Looking at the data
+
+First we will give a shortened name to the Denny's data set and take a look at just how large the data set really is.
+   
+```{r}
+dn = dennys
+nrow(dn)
+ncol(dn)
+```
+
+There are 1643 rows representing that many Denny's locations. There are 6 columns, each representing an attribute of a particular Denny's.
+
+We will do the same for the La Quinta data set. 
+   
+```{r}
+lq = laquinta
+nrow(lq)
+ncol(lq)
+```
+
+There are 909 rows representing that many La Quinta's locations. There are 6 columns, each representing an attribute of a particular La Quinta's.
+
+## Filtering the Data
+
+We would like to limit our analysis to Denny's and La Quinta locations in the United States. 
+
+We will determine whether or not the establishment has a location outside the US using the `state` variable in the `dn` and `lq` datasets. We know exactly which states are in the US, and we have this information in the `states` dataframe we loaded. First we will look if there are any locations that are outside the US.
+
+```{r}
+dn %>%
+  filter(!(state %in% states$abbreviation))
+lq %>%
+  filter(!(state %in% states$abbreviation))
+```
+
+We find that all of the Denny's locations in the data set are in the US, but this is not the case for La Quinta. Because of this, we can set every observation in the Denny's data set to be within the United States. 
+
+```{r}
+dn <- dn %>%
+  mutate(country = "United States")
+```
+
+La Quinta had locations outside of the United States but did not specify which country they were in. Using the cities that were provided, we matched state codes to their corresponding country and populated the same country variable for the La Quinta data set. 
+
+```{r}
+lq <- lq %>%
+  mutate(country = case_when(
+    state %in% state.abb                              ~ "United States",
+    state %in% c("ON", "BC")                          ~ "Canada",
+    state == "ANT"                                    ~ "Colombia",
+    state %in% c("AG", "QR", "CH", "NL", "VE", "PU")  ~ "Mexico",
+    state == "FM"                                     ~ "Honduras"
+  ))
+```
+
+Now for the goal that we were originally working towards, we are only interested in locations in the United States. Denny's only had locations in the United States, we will filter the La Quinta data set to be the same. 
+
+```{r}
+lq <- lq %>%
+  filter(country == "United States")
+```
+
+## Analyzing the data
+
+Now we would like to figure out which states have the most Denny's per thousand square miles. We can do this by joining the state data frame with the Denny's and creating a new column that contains the appropriate calculation. 
+
+First, we count how many observations are in each state, which will give us a data frame with two variables: `state` and `n`. Then, we join this data frame with the `states` data frame. However note that the variables in the `states` data frame that has the two-letter abbreviations is called `abbreviation`. So when we're joining the two data frames we specify that the `state` variable from the Denny's data should be matched `by` the `abbreviation` variable from the `states` data:
+
+```{r}
+dn %>%
+  count(state) %>%
+  inner_join(states, by = c("state" = "abbreviation")) %>%
+  mutate(dennys_per_thousand_miles = n / area * 1000)
+```
+
+Next, we put the two datasets together into a single data frame. However before we do so, we need to add an identifier variable. We'll call this `establishment` and set the value to `"Denny's"` and `"La Quinta"` for the `dn` and `lq` data frames, respectively.
+
+```{r}
+dn <- dn %>%
+  mutate(establishment = "Denny's")
+lq <- lq %>%
+  mutate(establishment = "La Quinta")
+```
+
+Since the two data frames have the same columns, we can easily bind them with the `bind_rows` function:
+
+```{r}
+dn_lq <- bind_rows(dn, lq)
+```
+
+## Visualizing the data
+
+We can plot the locations of the two establishments using a scatter plot, and color the points by the establishment type. Note that the latitude is plotted on the x-axis and the longitude on the y-axis.
+
+```{r}
+ggplot(dn_lq, mapping = aes(x = longitude, y = latitude, color = establishment)) +
+  geom_point(alpha = 0.3)
+```
+
+Here we will examine just North Carolina. 
+
+```{r}
+dn_lq %>%
+  filter(state == "NC") %>%
+  ggplot(mapping = aes(x = longitude, y = latitude, color = establishment)) + geom_point(alpha = 0.3) + labs(title = "Denny's and La Quinta's in North Carolina")
+```
+For North Carolina, the association seems to hold somewhat in that all but one La Quinta have at least one Denny's at least reasonably close by. 
+
+Now we will do the same for Texas. 
+
+```{r}
+dn_lq %>%
+  filter(state == "TX") %>%
+  ggplot(mapping = aes(x = longitude, y = latitude, color = establishment)) + geom_point(alpha = 0.3) + labs(title = "Denny's and La Quinta's in Texas")
+```
+The relationship visually seems to hold up much less well in Texas, there are plenty of La Quinta locations that have no Denny's anywhere nearby. But that sparks the question, how do we do this analysis in a quantitative manner? Simply eyeballing graphs does not provide a sufficiently rigorous analysis.
+
+## Quantitative Analysis
+
+To begin with, we will look at the state of Alaska. It has so few locations that it provides a nice simple example of what we will be doing. 
+
+First, we will create versions of the Denny's and La Quinta datasets that are just filtered to Alaska.
+
+```{r}
+dn_ak <- dn %>%
+  filter(state == "AK")
+lq_ak <- lq %>%
+  filter(state == "AK")
+```
+
+Looking at the data, there only appears to be 2 La Quintas and 3 Denny's in the entire state. 
+
+We want to calculate the distance between each pair of locations. In order to calculate these distances we need to first restructure our data to pair the Denny's and La Quinta locations. To do so, we will join the two data frames. We have six join options in R. Each of these join functions take at least three arguments: `x`, `y`, and `by`.
+
+- `x` and `y` are data frames to join
+- `by` is the variable(s) to join by
+
+Four of these join functions combine variables from the two data frames:
+
+- `inner_join()`: return all rows from `x` where there are matching values 
+in `y`, and all columns from `x` and `y`.
+
+- `left_join()`: return all rows from `x`, and all columns from `x` and `y`. 
+Rows in x with no match in y will have NA values in the new columns.
+
+- `right_join()`: return all rows from `y`, and all columns from `x` and `y`. 
+Rows in y with no match in x will have NA values in the new columns.
+
+- `full_join()`: return all rows and all columns from both `x` and `y`. Where 
+there are not matching values, returns NA for the one missing.
+
+In practice we mostly use mutating joins. In this case we want to keep all 
+rows and columns from both `dn_ak` and `lq_ak` data frames. So we will use 
+a `full_join`.
+
+```{r}
+dn_lq_ak <- full_join(dn_ak, lq_ak, by = "state")
+dn_lq_ak
+```
+This creates a table with 6 entries, each entry representing a pair of locations. Now that we have the data in the format we wanted, all that is left is to calculate the distances between the pairs. One way of calculating the distance between any two points on the earth is to use the Haversine distance formula. This formula takes into account the fact that the earth is not flat, but instead spherical. This function is not included in R so we need to define it here.
+
+```{r}
+haversine <- function(long1, lat1, long2, lat2, round = 3) {
+  # convert to radians
+  long1 = long1 * pi / 180
+  lat1  = lat1  * pi / 180
+  long2 = long2 * pi / 180
+  lat2  = lat2  * pi / 180
+  
+  R = 6371 # Earth mean radius in km
+  
+  a = sin((lat2 - lat1)/2)^2 + cos(lat1) * cos(lat2) * sin((long2 - long1)/2)^2
+  d = R * 2 * asin(sqrt(a))
+  
+  return( round(d,round) ) # distance in km
+}
+```
+
+Now we can add a new column to the dn_lq_ak data frame that contains the distance in miles between each pair of establishments. 
+
+```{r}
+dn_lq_ak <- dn_lq_ak %>%
+  mutate(distance = 
+           haversine(longitude.x, latitude.x, longitude.y, latitude.y))
+```
+
+Now we can calculate the minimum distance between a Denny's and La Quinta for each Denny's location. To do so we group by Denny's locations and calculate a new variable that stores the information for the minimum distance.
+
+```{r, warning=FALSE, message=FALSE}
+dn_lq_ak_mindist <- dn_lq_ak %>%
+  group_by(address.x) %>%
+  summarise(closest = min(distance))
+```
+
+Looking at this data, the relationship appears to hold somewhat for the state of Alaska, depending on which definition of "next to" is used. The minimum distances ranged from 2 to 6 miles. This can be illustrated with a dot plot. The dot plot won't show much that we couldn't get from just looking at the table, but this will be more useful in states with many more locations.
+
+```{r, message=FALSE}
+dn_lq_ak_mindist %>% ggplot(aes(x=closest)) + geom_dotplot()
+```
+
+Now we can create a function that will repeat this entire analysis for whichever state we choose to give it. This is the same code we just used for Alaska but generalized. 
+
+```{r}
+dennys_analysis = function(state_to_analyze) {
+  dn_filtered <- dn %>%
+    filter(state == state_to_analyze)
+  lq_filtered <- lq %>%
+    filter(state == state_to_analyze)
+  dn_lq_analyze <- full_join(dn_filtered, lq_filtered, by = "state") %>%
+    mutate(distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y), round = 4)
+  dn_lq_analyze_mindist <- dn_lq_analyze %>%
+    group_by(address.x) %>%
+    summarise(closest = min(distance))
+    return (dn_lq_analyze_mindist %>% ggplot(aes(x=closest)) + geom_dotplot())
+}
+```
+
+Now to look at a state like Texas, all we have to do is run this function on it.
+
+```{r, message=FALSE}
+dennys_analysis("TX")
+```
+
+For Texas, there is certainly a strong trend that the establishments appear together, but there are also pairs that are 60 miles apart at their closest. 
+
+We can repeat the same analysis for New Hampshire.
+
+```{r, message=FALSE}
+dennys_analysis("NH")
+```
+
+New Hampshire is not very interesting because it does not have many La Quinta locations, how about New Mexico?
+
+```{r, message=FALSE}
+dennys_analysis("NM")
+```
+
+This result is more in line with the Texas data, again there is a major outlier in that one La Quinta is nearly 200 miles from the nearest Denny's. 
+## Expanding the Analysis to Other Restaurants
+
+We have a data set that contains about 10,000 US restaurants that we can use to expand this analysis. 
+
+```{r, warning=FALSE, message=FALSE}
+restaurants <- read_csv("data/FastFoodRestaurants.csv") %>%
+  rename(state = province)
+```
+
+Now we can create a very similar function that takes a state as an argument and returns a data frame that finds the nearest restaurant to each La Quinta.
+
+```{r}
+restaurant_analysis = function(state_to_analyze) {
+  lq_filtered <- lq %>%
+    filter(state == state_to_analyze)
+  r_filtered = restaurants %>%
+    filter(state == state_to_analyze)
+  lq_r_analyze <- full_join(lq_filtered, r_filtered, by = "state") %>%
+    mutate(distance = haversine(longitude.x, latitude.x, longitude.y, latitude.y), round = 4)
+  lq_r_analyze_mindist <- lq_r_analyze %>%
+    group_by(address.x) %>%
+    summarise(closest = min(distance))
+    return (lq_r_analyze_mindist)
+}
+```
+
+We can run the same analysis on the same states we did in the section above.
+
+```{r, message=FALSE}
+restaurant_analysis("AK") %>%
+  ggplot(aes(x = closest)) + geom_histogram()
+```
+
+```{r, message=FALSE}
+restaurant_analysis("NH") %>%
+  ggplot(aes(x = closest)) + geom_histogram()
+```
+
+```{r, message=FALSE}
+restaurant_analysis("NM") %>%
+  ggplot(aes(x = closest)) + geom_histogram()
+```
+
+```{r, message=FALSE}
+restaurant_analysis("TX") %>%
+  ggplot(aes(x = closest)) + geom_histogram()
+```
+
+The story for all of these graphs is much the same as it was for Denny's, only now the distances are reduced as would be expected. This is because there could often be a closer restaurant than the nearest Denny's, but a Denny's would count as a restaurant so it would never be higher. The most interesting thing is that there still appears to be La Quinta's with no recorded restaurant over 75 miles away. This appears to be a problem with the restaurant data set because that simply does not make sense. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
