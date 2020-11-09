@@ -1,0 +1,304 @@
+---
+title: "Analyzing Bikeshare Data in Washington DC"
+author: "Louis Keith"
+date: "21 Sep 2020"
+output:
+  html_document:
+    df_print: paged
+---
+
+The intention of this analysis is to look at and draw conclusions from a publicly available data set pertaining to a bikeshare program in the D.C. area. 
+
+## Load packages
+
+```{r, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(janitor)
+library(readxl)
+library(skimr)
+library(summarytools)
+library(lubridate)
+```
+
+## Read and clean the data
+
+Like other analyses, we begin by importing the data and ensuring the column names are compliant with tidy data practices. In order to read this, its necessary to take it 
+
+```{r, warning=FALSE, message=FALSE}
+bikeshare = read_csv("202008-capitalbikeshare-tripdata.csv") %>% clean_names()
+```
+
+Very preliminary look at the data.
+
+```{r}
+skim(bikeshare)
+```
+
+This is a very large data set with a lot of columns. This gives us a wealth of information to look at. Not all of it is immediately useful to us however without further analysis. 
+
+## Adding useful columns
+
+Some of the columns that we want to use in the data analysis are not included in the initial data set, but can be calculated. One example is the duration of each ride in minutes.
+
+```{r}
+bikeshare = bikeshare %>% mutate(duration = (ended_at - started_at)/60)
+```
+
+Another useful column will be the hour of the day that the ride begins at.
+
+```{r}
+bikeshare = bikeshare %>% mutate(hour = hour(started_at))
+```
+
+The final column we will want for our analysis will be the day of the week that the ride began on.
+
+```{r}
+bikeshare = bikeshare %>% mutate(weekday = wday(started_at))
+```
+
+## Subsetting
+
+One of the first things we can get rid of is the ride id. This will not be useful to any of our analysis.
+
+```{r}
+bikeshare_b = bikeshare %>% select(-ride_id)
+```
+
+
+## Cleaning
+
+Looking at the data, there are events where people have a bike for an exceptionally long period of time. This is likely due to them keeping the bike overnight. Since this isn't necessarily ride time, we will be filtering those out. There are also a number of rides with a negative duration, this must be a problem with the data and does not make sense, so they too will be filtered out. 
+
+```{r}
+bikeshare_c = bikeshare_b %>% filter(duration>0, duration<1440)
+```
+
+Another thing is that weekdays are currently coded as an integer from 1 to 7. We can make this more readable by replacing these numbers with the correct names for each day. 
+
+```{r}
+bikeshare_c = bikeshare_c %>% mutate(weekday = case_when(
+  weekday == 1 ~ "Sunday",
+  weekday == 2 ~ "Monday",
+  weekday == 3 ~ "Tuesday",
+  weekday == 4 ~ "Wednesday",
+  weekday == 5 ~ "Thursday",
+  weekday == 6 ~ "Friday",
+  weekday == 7 ~ "Saturday"
+))
+```
+
+
+## Visualization
+
+For some preliminary visualizations, we can just look at rides less than five hours long and create a histogram for each week day. 
+
+```{r}
+bikeshare_c %>% filter(duration<300) %>% ggplot(aes(duration)) + geom_histogram(binwidth = 1) + facet_wrap(vars(weekday))
+```
+
+From this we can see that ridership is generally highest on the weekend days. This makes sense because there will be a demographic of people that use these bikes for recreation and are at work during the rest of the week.
+
+We can create a set of box plots to look at the duration of each ride depending on which hour in the day they checked the bike out at. 
+
+```{r}
+bikeshare_c %>% ggplot(aes(x = factor(hour), y = duration)) +
+  geom_boxplot()
+```
+
+Each boxplot is extremely tightly concentrated with the most rides at the much shorter durations, with a lot of outliers having the bike checked out for as long as 24 hours or more. In these outliers, there is an interesting pattern occuring with the rides started around 1 pm. There is a large concentration of use for a time, a gap where no bikes are returned, and then another more sporadic spread of when bikes are returned. This very likely corresponds to the middle of the night, when no one is going to go out to return a bike. The entries above the gap are the people who had the bike overnight and returned it the next morning. 
+
+Another thing we can do if we find it useful to sort the data by how long people had the bikes for.
+
+```{r}
+dfsorted = bikeshare_c %>% dplyr::arrange(duration)
+```
+
+## Further Analysis
+
+Here we will come up with a shorter name to use from now on. 
+
+```{r}
+dfa = bikeshare
+```
+
+Like before, we want to filter out the bad data from the negative duration trips. 
+
+```{r}
+dfb=dfa %>% filter(duration>0)
+```
+
+## Visualization
+
+We can choose to look at a specific day, in this case August 3rd, and just look at bike rides that lasted less than one hour. We can then graph that vs the start time to see if any interesting patterns emerge. 
+
+```{r}
+dfb %>% filter(mday(started_at)==3,duration<60) %>% ggplot(aes(x=started_at,y=duration))+
+  geom_point(alpha=.1)+
+  ggtitle("Trip duration vs start time (August 3)")
+```
+
+This looks like a pretty muddy graph, but one interesting thing of note occurs around 5 pm. August 3rd 2020 was a Monday, and thus there were a lot of people heading to work. Generally, a ride to work should not take too long, or people would find an alternative mode of transportation. From these two facts we can conclude that a large portion of the rides on this graph are made up of people commuting to and from work. The dip at 5 pm then would correspond to the end of the work day and that demographic of people no longer needing to start a new ride to go home. 
+
+# Riders vs time
+
+Another thing we can do is come up with a method for determining how many concurrent riders there are at any given moment.
+
+dfe is a small representative sample for august third, we can expand this analysis later.
+
+```{r}
+dfe=dfb %>% filter(mday(started_at)==3) %>% slice_sample(n=100)
+```
+
+This algorithm looks only at the times that a ride started or ended, puts them in a table together, pivots it so that they share a column, and then sorts by date. Then, it creates a variable for the number of concurrent riders and goes through that table incrementing it for every start and decrementing it for every end. At the end, we get a cumulative sum that will give the concurrent riders at any given moment, exactly what we wanted.
+
+We can plot this and look at the data for August 3rd.
+
+```{r}
+dfe %>% select(start=started_at,end=ended_at) %>%
+  pivot_longer(start:end, names_to="type",values_to="t") %>% arrange(t) %>%
+  mutate(increment=case_when(
+   type=="start"~1,
+   type=="end" ~ -1
+  )) %>%
+  mutate(riders=cumsum(increment)) %>% 
+  ggplot(aes(t,riders)) + geom_step()
+```
+
+This corresponds well to the prior anaylsis that a large demographic of riders on this particular day were people commuting to and from work. Around noon, the people commuting to work combine with the recreational riders to create a large peak in ridership. Around 5 pm, that demographic that commuted to work gets back on a bike and creates a separate and distinct second peak. A brief aside, running this sample several times does not always produce the same result, since it is a random sample. 
+
+We can repeat this same analysis without the representative random sample for the entire day.
+
+```{r, warning=FALSE, message=FALSE}
+dfb %>% filter(mday(started_at)==3) %>%
+  select(start=started_at,end=ended_at) %>%
+  pivot_longer(start:end, names_to="type",values_to="t") %>% arrange(t) %>%
+  mutate(increment=case_when(
+   type=="start"~1,
+   type=="end" ~ -1
+  )) %>%
+  mutate(riders=cumsum(increment)) %>% 
+  ggplot(aes(t,riders)) + geom_step() +
+  scale_x_datetime(limits=as_datetime(   c("2020-08-03","2020-08-04")))
+```
+
+This shows the whole story for August 3rd. The same kinds of factors that were at play in the sample show up here, but more clearly. The first spike around 9 am is likely to be that demographic of commuters, and they also explain the third spike around 5 pm. The overall peak occurs in the middle of the day, when most people who would be going on a recreational bike ride do. 
+
+This analysis can be extended further to the entire data set.
+
+```{r}
+dfb %>% 
+  select(start=started_at,end=ended_at) %>%
+  pivot_longer(start:end, names_to="type",values_to="t") %>% arrange(t) %>%
+  mutate(increment=case_when(
+   type=="start"~1,
+   type=="end" ~ -1
+  )) %>%
+  mutate(riders=cumsum(increment)) %>% 
+  ggplot(aes(t,riders)) + geom_step() 
+```
+
+Here each spike is another day of use, the graph is a bit too compressed to get any other real insights from it, this is why faceting could be useful. 
+
+With faceting, we can just look at a two week period and come up with a separate graph for each day. 
+
+```{r}
+dfb %>% 
+  filter(month(started_at)==8,month(ended_at)==8, mday(started_at)<=14, mday(ended_at)<=14) %>%
+  select(start=started_at,end=ended_at) %>%
+  pivot_longer(start:end, names_to="type",values_to="t") %>% arrange(t) %>%
+  mutate(increment=case_when(
+   type=="start"~1,
+   type=="end" ~ -1
+  )) %>%
+  mutate(riders=cumsum(increment)) %>% 
+  ggplot(aes(t,riders)) + geom_step() +
+  facet_wrap(~mday(t),scales = "free_x",ncol = 7) +
+  theme(axis.text.x = element_blank())
+```
+
+It's difficult to tell which days of the week are which here because the days are just numbered, but a safe assumption is that days 1 and 8 are Saturdays while days 2 and 9 are Sundays. This is because they have a much more normally distributed and generally higher peak ridership than the other five days. This correlates well to the notion that most people will not be needing to commute to and from work, and will want to spend the weekends doing recreational rides. 
+
+The data set also tracks the type of bikes used, we can use the same faceting technique to look at a week of data and separate out the two types by color. 
+
+```{r}
+dfb %>% 
+  filter(month(started_at)==8,month(ended_at)==8) %>%
+ select(rideable_type,start=started_at,end=ended_at) %>%
+  pivot_longer(start:end, names_to="type",values_to="t") %>% arrange(t) %>%
+  mutate(increment=case_when(
+   type=="start"~1,
+   type=="end" ~ -1
+  )) %>%
+  group_by(rideable_type) %>%
+  mutate(riders=cumsum(increment)) %>% filter(mday(t)<=7) %>%
+    ggplot(aes(t,riders,color=rideable_type)) + geom_step() +
+    facet_wrap(~mday(t),scales = "free_x",ncol = 7) +
+    theme(axis.text.x = element_blank())
+```
+
+This graph is pretty interesting, and shows that electric bike use is generally much lower than docked bike use. It also shows that people don't appear to have a preference for one or the other, as both colors follow the same trends. 
+
+Here we can store this model of concurrent ridership that we have copy and pasted a few times to create graphs as its own variable.
+
+```{r}
+dfr1 = dfb %>% 
+  filter(month(started_at)==8,month(ended_at)==8) %>%
+ select(start=started_at,end=ended_at) %>%
+  pivot_longer(start:end, names_to="type",values_to="t") %>% arrange(t) %>%
+  mutate(increment=case_when(
+   type=="start"~1,
+   type=="end" ~ -1
+  )) %>%
+  mutate(riders=cumsum(increment))
+```
+
+We can also create a variable that tracks the mean ridership over each day if we really want to. 
+
+```{r, warning=FALSE, message=FALSE}
+dfrh = dfr1 %>% group_by(day_of_week=wday(t, label=TRUE), hour_of_day=hour(t)) %>%
+  summarize(mean_ridership = mean(riders), max_ridership = max(riders)) %>%
+  mutate(mean_ridership = round(mean_ridership))
+```
+
+## Station ID Analysis
+
+# Count Starts and Ends
+
+We can summarize to create a data frame that counts the number of starts from each station ID. Start with start_station_ID. What this will do is list the total number of bikes that have started at each of the given stations.
+
+```{r}
+df_total_starts = dfb %>%
+  select(station_id = start_station_id) %>%
+  group_by(station_id) %>%
+  count(station_id) %>%
+  rename(total_starts = n)
+```
+
+We can do the same for the end_station_ID. What this will do is list the total number of bikes that have ended at each of the given stations.
+
+```{r}
+df_total_ends = dfb %>%
+  select(station_id = end_station_id) %>%
+  group_by(station_id) %>%
+  count(station_id) %>%
+  rename(total_ends = n)
+```
+
+# Combine the Data Sets
+
+Now we can join those two data frames to create one data frame that shows exactly how many bikes have started from and ended at each station
+
+```{r, warning=FALSE, message=FALSE}
+df_starts_vs_ends = full_join(df_total_starts, df_total_ends, by = "station_id")
+```
+
+# Visualize
+
+A decent way to visualize the data is to create a scatter plot. Points along the y = x line will be stations that have roughly the same amount as bikes starting and ending there. Stations below that line will be losing bikes are more bikes depart than arrive. Finally stations above the line will be accumulating bikes as more bikes arrive than depart. 
+
+```{r}
+df_starts_vs_ends %>% na.omit() %>% 
+  ggplot(aes(total_starts, total_ends)) + geom_point()
+```
+
+Finally, further analysis could be driven by identifying exactly which stations are furthest from the line, where they are, and attempting to come up with reasons for why they are so unbalanced.
