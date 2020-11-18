@@ -1,0 +1,801 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={STAT 383 Final Project},
+  pdfauthor={Louis Keith},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\title{STAT 383 Final Project}
+\author{Louis Keith}
+\date{11/15/2020}
+
+\begin{document}
+\maketitle
+
+\hypertarget{introduction}{%
+\subsection{Introduction}\label{introduction}}
+
+The purpose of this project is to look at the Coronavirus pandemic in
+the state of New Hampshire and compare it to the country as a whole.
+There are numerous questions that could be answered by looking at the
+data, and we will explore each of them one by one.
+
+\hypertarget{importing-libraries}{%
+\subsection{Importing Libraries}\label{importing-libraries}}
+
+The very first thing that needs to be done is importing libraries that
+will be useful to this analysis. Readxl will allow importing from excel
+sheets and dplyr will provide some functions for tidy data analysis.
+Janitor will also provide similar functionality. ggplot2 will be very
+helpful for creating plots of all types.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(readxl)}
+\KeywordTok{library}\NormalTok{(dplyr)}
+\KeywordTok{library}\NormalTok{(janitor)}
+\KeywordTok{library}\NormalTok{(ggplot2)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{importing-the-data}{%
+\subsection{Importing the Data}\label{importing-the-data}}
+
+Then, we will import the data. Both data sets come from the COVID
+tracking project, one has detailed data for just New Hampshire, the
+other for the entire country.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{new_hampshire_history <-}\StringTok{ }\KeywordTok{read_excel}\NormalTok{(}\StringTok{"C:/Users/louis/Documents/Clarkson/Fall Semester 2020/STAT 383 Probability and Statistics/Final Project/new-hampshire-history.xlsx"}\NormalTok{)}
+\NormalTok{national_history <-}\StringTok{ }\KeywordTok{read_excel}\NormalTok{(}\StringTok{"C:/Users/louis/Documents/Clarkson/Fall Semester 2020/STAT 383 Probability and Statistics/Final Project/national-history.xlsx"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+One thing that was forgotten in the presenting data part of the project
+was the total populations of both NH and the country as a whole. Ideally
+there would be data for each day, but since we don't have that, current
+populations will be stored as constants. This will be for the purpose of
+normalizing for population.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nh_pop =}\StringTok{ }\DecValTok{1359711}
+\NormalTok{us_pop =}\StringTok{ }\DecValTok{331002651}
+\end{Highlighting}
+\end{Shaded}
+
+Both populations were pulled from google.
+
+\hypertarget{preliminary-look}{%
+\subsection{Preliminary Look}\label{preliminary-look}}
+
+Open both data frames and take a look at the data.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{View}\NormalTok{(new_hampshire_history)}
+\KeywordTok{View}\NormalTok{(national_history)}
+\end{Highlighting}
+\end{Shaded}
+
+Both data sets are formatted similarly. They each contain one row for
+each day since the beginning of the data collection began. The data for
+New Hampshire begins on March 4th while the national data begins on
+January 22nd. A logical first step would be to truncate the data in the
+national data set up to March 4th so there is an apples to apples
+comparison.
+
+\hypertarget{cleaning}{%
+\subsection{Cleaning}\label{cleaning}}
+
+There are also a myriad of columns populated by NA values that we will
+get rid of as they are of no use to our analysis. The data quality grade
+also isn't useful for us, and for the New Hampshire data it is
+superfluous to state it came from NH. Hospitalized and
+hospitalized\_cumulative have identical values, so one of them can go
+too.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{new_hampshire_history =}\StringTok{ }\NormalTok{new_hampshire_history }\OperatorTok{%>%}\StringTok{ }\KeywordTok{clean_names}\NormalTok{()}
+\NormalTok{nhf =}\StringTok{ }\NormalTok{new_hampshire_history }\OperatorTok{%>%}\StringTok{ }\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\KeywordTok{c}\NormalTok{(data_quality_grade, state, death_confirmed, death_probable, in_icu_currently, negative_tests_antibody, negative_tests_people_antibody, negative_tests_viral, on_ventilator_cumulative, on_ventilator_currently, positive_tests_antibody, positive_tests_antigen, positive_tests_people_antibody, positive_tests_people_antigen, positive_tests_viral, total_test_encounters_viral, total_tests_people_antigen, total_tests_antigen, total_test_encounters_viral_increase, positive_score, hospitalized_cumulative))}
+\NormalTok{nhf}\OperatorTok{$}\NormalTok{date <-}\StringTok{ }\KeywordTok{as.Date}\NormalTok{(nhf}\OperatorTok{$}\NormalTok{date)}
+\end{Highlighting}
+\end{Shaded}
+
+Now that the NH data only contains numeric columns and a properly stored
+date column, we can do the same for the national data. This data comes
+much cleaner, so the only thing that needs to be done is to convert the
+date and clean the names. We do want to only keep the data after March
+3rd though.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nf =}\StringTok{ }\NormalTok{national_history }\OperatorTok{%>%}\StringTok{ }\KeywordTok{clean_names}\NormalTok{()}
+\NormalTok{nf}\OperatorTok{$}\NormalTok{date <-}\StringTok{ }\KeywordTok{as.Date}\NormalTok{(nf}\OperatorTok{$}\NormalTok{date)}
+\NormalTok{nf =}\StringTok{ }\NormalTok{nf }\OperatorTok{%>%}\StringTok{ }\KeywordTok{filter}\NormalTok{(date }\OperatorTok{>=}\StringTok{ }\KeywordTok{as.Date}\NormalTok{(}\StringTok{'2020-03-04'}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+At this stage, both data sets should only contain usable dates as well
+as numeric columns.
+
+\hypertarget{preliminary-visualizations}{%
+\subsection{Preliminary
+visualizations}\label{preliminary-visualizations}}
+
+Now that the data cleaning step is done, some exploratory visualizations
+can be done to look at the relationships between data. Some of the most
+interesting graphs will be deaths over time normalized per million
+people.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ nhf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ date, }\DataTypeTok{y =}\NormalTok{ (death }\OperatorTok{/}\StringTok{ }\NormalTok{nh_pop) }\OperatorTok{*}\StringTok{ }\DecValTok{1000000}\NormalTok{)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Date"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Covid Deaths per Million People in New Hampshire"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"New Hampshire"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/death-graphs-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ nf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ date, }\DataTypeTok{y =}\NormalTok{ (death }\OperatorTok{/}\StringTok{ }\NormalTok{us_pop) }\OperatorTok{*}\StringTok{ }\DecValTok{1000000}\NormalTok{)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Date"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Covid Deaths per Million People in the United States"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"United States"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/death-graphs-2.pdf}
+
+Having done absolutely no statistical analysis at this point, the graph
+shows that up to November, about 2.5x more people adjusted for
+population have died in the United States than in New Hampshire. It also
+appears that the graph for the United States appears roughly linear
+while the graph for New Hampshire appears to show evidence of
+``flattening the curve''. Again, there are no hard conclusions to be
+drawn from this, but it suggests that New Hampshire might be handling
+the pandemic better than the country as a whole.
+
+We can make the same graphs for the total positive cases so far.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ nhf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ date, }\DataTypeTok{y =}\NormalTok{ (positive }\OperatorTok{/}\StringTok{ }\NormalTok{nh_pop) }\OperatorTok{*}\StringTok{ }\DecValTok{1000000}\NormalTok{)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Date"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Covid Cases per Million People in New Hampshire"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"New Hampshire"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/cases-graph-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ nf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ date, }\DataTypeTok{y =}\NormalTok{ (positive }\OperatorTok{/}\StringTok{ }\NormalTok{us_pop) }\OperatorTok{*}\StringTok{ }\DecValTok{1000000}\NormalTok{)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Date"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Covid Cases per Million People in the United States"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"United States"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/cases-graph-2.pdf}
+
+Similar to the analyses for the previous set of graphs, no hard
+conclusions can be drawn from either graph. However, recent reports of
+spiking cases can be pretty clearly noted in both graphs. It appears to
+be particularly bad in New Hampshire. This will be something that is
+explored in a later question.
+
+\hypertarget{question-1-is-new-hampshire-handling-the-pandemic-better-or-worse-than-the-united-states}{%
+\subsection{Question 1: Is New Hampshire Handling the Pandemic Better or
+Worse Than the United
+States?}\label{question-1-is-new-hampshire-handling-the-pandemic-better-or-worse-than-the-united-states}}
+
+Given the preliminary result from above, a one sided test for whether or
+not the death rate in New Hampshire adjusted for population is lower
+than the same for the United States seems to make sense.
+
+That would make hypotheses: \[H_{0}: p_{deaths-US} - p_{deaths-NH} = 0\]
+\[H_{a}: p_{deaths-US} - p_{deaths-NH} > 0\]
+
+We can determine whether or not to reject the null hypothesis by
+creating a one sided confidence interval, with the upper bound being 1,
+the equation for the lower bound is:
+
+\[p^{hat}_{2} - p^{hat}_{1} - Z_{\alpha}\sqrt{\frac{p^{hat}_{2}(1-p^{hat}_{2})}{n_{2}} + \frac{p^{hat}_{1}(1-p^{hat}_{1})}{n_{1}}}\]
+Plugging the values we have on November 7th into this equation, we will
+use a 99\% confidence interval:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# the value for death at the top of the table (latest value) divided by the total US population}
+\NormalTok{p2 =}\StringTok{ }\NormalTok{nf}\OperatorTok{$}\NormalTok{death[}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\NormalTok{us_pop}
+\CommentTok{# doing the same for the NH values. }
+\NormalTok{p1 =}\StringTok{ }\NormalTok{nhf}\OperatorTok{$}\NormalTok{death[}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\NormalTok{nh_pop}
+\CommentTok{# calculating Z statistic}
+\NormalTok{Z =}\StringTok{ }\KeywordTok{qnorm}\NormalTok{(}\FloatTok{0.99}\NormalTok{)}
+\NormalTok{lower_bound_proportion_of_deaths =}\StringTok{ }\NormalTok{p2 }\OperatorTok{-}\StringTok{ }\NormalTok{p1 }\OperatorTok{-}\StringTok{ }\NormalTok{Z}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{((p2}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{p2)}\OperatorTok{/}\NormalTok{us_pop) }\OperatorTok{+}\StringTok{ }\NormalTok{(p1}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{p1)}\OperatorTok{/}\NormalTok{nh_pop))}
+\end{Highlighting}
+\end{Shaded}
+
+The resulting confidence interval is \((0.000294944, 1)\) and does not
+contain 0, this provides sufficient evidence to reject the null
+hypothesis.
+
+Since we reject the null hypothesis, we conclude that New Hampshire is
+likely to have a smaller proportion of deaths than the rest of the
+country. This is evidence that the New Hampshire COVID response has
+indeed been better than the United States as a whole.
+
+Deaths are not the entire story however. To conclude that New Hampshire
+is definitely doing better, it is a good idea to perform the same
+analysis for cases in general.
+
+\[H_{0}: p_{cases-US} - p_{cases-NH} = 0\]
+\[H_{a}: p_{cases-US} - p_{cases-NH} > 0\] The same exact confidence
+interval equation can be used, and the upper bound will still be 1.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# the value for death at the top of the table (latest value) divided by the total US population}
+\NormalTok{p2 =}\StringTok{ }\NormalTok{nf}\OperatorTok{$}\NormalTok{positive[}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\NormalTok{us_pop}
+\CommentTok{# doing the same for the NH values. }
+\NormalTok{p1 =}\StringTok{ }\NormalTok{nhf}\OperatorTok{$}\NormalTok{positive[}\DecValTok{1}\NormalTok{]}\OperatorTok{/}\NormalTok{nh_pop}
+\CommentTok{# calculating Z statistic}
+\NormalTok{Z =}\StringTok{ }\KeywordTok{qnorm}\NormalTok{(}\FloatTok{0.99}\NormalTok{)}
+\NormalTok{lower_bound_proportion_of_cases =}\StringTok{ }\NormalTok{p2 }\OperatorTok{-}\StringTok{ }\NormalTok{p1 }\OperatorTok{-}\StringTok{ }\NormalTok{Z}\OperatorTok{*}\KeywordTok{sqrt}\NormalTok{((p2}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{p2)}\OperatorTok{/}\NormalTok{us_pop) }\OperatorTok{+}\StringTok{ }\NormalTok{(p1}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{p1)}\OperatorTok{/}\NormalTok{nh_pop))}
+\end{Highlighting}
+\end{Shaded}
+
+The resulting confidence interval is \((0.020298, 1)\) and does not
+contain 0, this provides sufficient evidence to reject the null
+hypothesis.
+
+Since we reject the null hypothesis, we conclude that New Hampshire is
+likely to have a smaller proportion of positive cases than the rest of
+the country. This too is evidence that the New Hampshire COVID response
+has been better than the United States as whole.
+
+Together, positive cases and deaths show that New Hampshire has
+responded better than the average within the United States.
+
+\hypertarget{question-2-have-there-been-several-waves-which-wave-are-we-in-are-they-getting-smallerlarger}{%
+\subsection{Question 2: Have There Been Several Waves? Which Wave are we
+in? Are They Getting
+Smaller/Larger?}\label{question-2-have-there-been-several-waves-which-wave-are-we-in-are-they-getting-smallerlarger}}
+
+In order to answer this question, it is a good idea to look at the
+positive cases each day.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ nhf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ date, }\DataTypeTok{y =}\NormalTok{ positive_increase)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Date"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"New Cases"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"New Hampshire"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/daily-cases-graphs-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ nf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ date, }\DataTypeTok{y =}\NormalTok{ positive_increase)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Date"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"New Cases"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"United States"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/daily-cases-graphs-2.pdf}
+
+Looking at the national data, it seems very obvious that there are
+three, peaks, and we are in the middle of a third wave. This is
+consistent with reports of spiking cases in many states. The New
+Hampshire date is also very interesting. It appears that we are in the
+middle of a second wave, with the first coinciding mostly with the space
+between the first and second waves in the country as a whole. There are
+also quite a few days where there are zero cases recorded. This is
+probably an error in the data collection.
+
+Looking at the New Hampshire graph, it makes sense that the cases that
+were meant to be recorded on the days with zero new cases were lumped
+into the next day. This explains why there is a subset of points that
+look like they are about twice the height of the rest of the curve. This
+is quite unfortunate, but if that assumption is correct, then the
+residuals will be worse but the overall fit should remain mostly the
+same.
+
+Overall, a tentative conclusion we can draw from this is that the waves
+in New Hampshire and the United States do not line up very well. They
+have not been synced up, and there have been only two in New Hampshire
+while there were three across the nation as a whole.
+
+Hard statistical analysis on this problem is not trivial, so for the
+purposes of this project it will not be performed. This is not one of
+the three statistical analyses that will be done, but it is very
+interesting information nonetheless.
+
+Nonetheless, we can repeat this analysis for the deaths.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ nhf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ date, }\DataTypeTok{y =}\NormalTok{ death_increase)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Date"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"New Deaths"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"New Hampshire"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/daily-deaths-graphs-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ nf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ date, }\DataTypeTok{y =}\NormalTok{ death_increase)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"Date"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"New Deaths"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"United States"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/daily-deaths-graphs-2.pdf}
+
+This appears to roughly support the story that the cases have told. The
+United States had a spike just before New Hampshire, and then another
+two waves, but the separation appears less than for the cases. The
+number of deaths for the second and third waves for the United States
+appear to show up less well on the deaths. This could be because
+treatments have improved since the early months of the pandemic,
+reducing the number of deaths relatives to cases. This will be a subject
+of further analysis.
+
+There also appears to be some odd separation between two distinct bands
+in the United States data. This could be explained by an error in the
+data, but the mechanism is unknown.
+
+The New Hampshire data on its own is more difficult to examine since
+there are so few deaths, but it mirrors the same trends that were
+observed for the national data. The second wave seems less pronounced in
+the death data, potentially because of better treatments.
+
+As with the analysis for cases, this on its own does not provide the
+kind of data to make any conclusions. but it may offer grounds for
+explanation for things that will be seen later in the analysis.
+
+\hypertarget{question-3-do-cases-in-new-hampshire-correlate-with-cases-in-the-united-states-how-about-deaths}{%
+\subsection{Question 3: Do Cases in New Hampshire Correlate with Cases
+in The United States? How about
+deaths?}\label{question-3-do-cases-in-new-hampshire-correlate-with-cases-in-the-united-states-how-about-deaths}}
+
+This was not in the initial submission for questions, but this is
+something that conclusive statistical analysis can be done on, so it
+will be explored.
+
+First, we need to create a data frame that contains both columns of data
+that we wish to analyze. This can be done by selecting columns from both
+of the full data frames available and then joining them by the date
+column.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nh_cases_and_deaths =}\StringTok{ }\NormalTok{nhf }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\CommentTok{# grab the columns we want from the New Hampshire data and put them in another data frame}
+\StringTok{  }\KeywordTok{select}\NormalTok{(date, positive, death) }\OperatorTok{%>%}
+\StringTok{  }\CommentTok{# rename the columns so that they are distinct when joined}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{nh_positive =}\NormalTok{ positive, }\DataTypeTok{nh_death =}\NormalTok{ death) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\CommentTok{# get rid of the original names for those columns. }
+\StringTok{  }\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\KeywordTok{c}\NormalTok{(positive, death))}
+
+\CommentTok{# do the same for the national data}
+\NormalTok{us_cases_and_deaths =}\StringTok{ }\NormalTok{nf }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{select}\NormalTok{(date, positive, death) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{us_positive =}\NormalTok{ positive, }\DataTypeTok{us_death =}\NormalTok{ death) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{select}\NormalTok{(}\OperatorTok{-}\KeywordTok{c}\NormalTok{(positive, death))}
+
+\CommentTok{# create combined data frame}
+\NormalTok{cdf =}\StringTok{ }\KeywordTok{full_join}\NormalTok{(nh_cases_and_deaths, us_cases_and_deaths, }\DataTypeTok{by =} \StringTok{'date'}\NormalTok{)}
+\CommentTok{# there are NAs at the beginning of the NH data set for deaths where there should probably be zeros. In order to plot those points we can replace them}
+\NormalTok{cdf =}\StringTok{ }\NormalTok{cdf }\OperatorTok{%>%}\StringTok{ }\KeywordTok{replace}\NormalTok{(., }\KeywordTok{is.na}\NormalTok{(.), }\DecValTok{0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+Now we can easily create a graph to explore the relationship between
+cases in the united states and cases in New Hampshire.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ cdf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ us_positive, }\DataTypeTok{y =}\NormalTok{ nh_positive)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"US Cases"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"NH Cases"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"NH Cases vs US Cases"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/graph-combined-data-frame-cases-1.pdf}
+
+This is a very interesting plot that tries to predict the number of
+cases in NH based on the number of cases in the US. Very interestingly,
+it appears that there was a period during which New Hampshire had more
+cases than would be suggested by just predicting off of national data.
+We can fit a linear model to explore this relationship further.
+
+\[H_{0}: \beta_{1} = 0\] \[H_{0}: \beta_{2} \neq 0\]
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nh_cases_vs_us_cases =}\StringTok{ }\KeywordTok{lm}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ cdf, nh_positive }\OperatorTok{~}\StringTok{ }\NormalTok{us_positive)}
+\KeywordTok{summary}\NormalTok{(nh_cases_vs_us_cases)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = nh_positive ~ us_positive, data = cdf)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1355.8  -656.5  -223.0   702.1  1749.7 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) 1.357e+03  9.822e+01   13.82   <2e-16 ***
+## us_positive 1.070e-03  2.103e-05   50.90   <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 952 on 247 degrees of freedom
+## Multiple R-squared:  0.913,  Adjusted R-squared:  0.9126 
+## F-statistic:  2591 on 1 and 247 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+From this we can certainly conclude that there is a strong statistical
+relationship between these two variables, as is to be expected. Both
+p-values for the intercept are about low as R can output, with an
+R-squared of 0.913. We can safely reject the null hypothesis. The most
+interesting aspect of this graph is the big hump in the data, we can see
+what this looks like on the standardized residual plot.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ cdf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ us_positive, }\DataTypeTok{y =}\NormalTok{ nh_cases_vs_us_cases}\OperatorTok{$}\NormalTok{residuals}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{anova}\NormalTok{(nh_cases_vs_us_cases)}\OperatorTok{$}\StringTok{"Mean Sq"}\NormalTok{[}\DecValTok{2}\NormalTok{]))) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"US Cases"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Standardized Residuals"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"Standardized Residuals Plot"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/graph-residuals-cases-1.pdf}
+
+There is an incredibly obvious pattern here, which shows that there is
+problem with the linear model. However, not a single data point breaks
+the 2 mark on the standardized residuals, which shows that the fit
+itself isn't too bad. There is a problem with the shape of the graph
+though. Instead of coming up with an alternate relationship, another
+explanation can be offered.
+
+From the question 2 analysis we can see that New Hampshire was in the
+middle of its first wave while the greater United States was recovering
+from its first wave. During this period, The new daily cases was going
+down in the United States while spiking in New Hampshire. This offers
+explanation for this hump, because it appears to happen around the same
+place in the data (May and June). In the residuals, there is a time
+immediately after the hump that the cases appear to go below the y = 0
+line. This can also be explained by the fact that the United States was
+entering its second wave while the New Hampshire was recovering from its
+first wave, making the cases in New Hampshire lower than what would be
+predicted by the model. Finally, the line moves back above the y = 0
+line at the end of the data set because New Hampshire appears to be
+spiking right now more severely than the average of the rest of the
+nation.
+
+While this is not exactly a desirable result in the residuals, it
+combines extremely well with the question 2 analysis to offer a very
+good look at what is happening in New Hampshire and how it related to
+the United States. It offers statistical backing for the earlier claim
+that the waves in New Hampshire are not synchronized with the waves
+across the rest of the nation.
+
+We can repeat this analysis for the deaths.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ cdf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ us_death, }\DataTypeTok{y =}\NormalTok{ nh_death)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"US Deaths"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"NH Deaths"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"NH Deaths vs US Deaths"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/graph-combined-data-frame-deaths-1.pdf}
+
+This is very interesting, as at first glance it does not seem to match
+up with the cases data. It does however make a great deal of sense once
+one considers that if someone dies of COVID, it is often after a lengthy
+weeks-long battle. This explains why the exact same hump appears in the
+data but delayed by several weeks. Many of those cases that were
+observed in May and June are resulting in deaths that occur later on in
+July and August.
+
+We can predict that the residuals will likely tell a similar story, but
+shifted to the right. First we must make the model.
+
+\[H_{0}: \beta_{1} = 0\] \[H_{0}: \beta_{2} \neq 0\]
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nh_cases_vs_us_cases =}\StringTok{ }\KeywordTok{lm}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ cdf, nh_positive }\OperatorTok{~}\StringTok{ }\NormalTok{us_positive)}
+\KeywordTok{summary}\NormalTok{(nh_cases_vs_us_cases)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = nh_positive ~ us_positive, data = cdf)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -1355.8  -656.5  -223.0   702.1  1749.7 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) 1.357e+03  9.822e+01   13.82   <2e-16 ***
+## us_positive 1.070e-03  2.103e-05   50.90   <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 952 on 247 degrees of freedom
+## Multiple R-squared:  0.913,  Adjusted R-squared:  0.9126 
+## F-statistic:  2591 on 1 and 247 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+Again, the null hypothesis can be rejected and it can be concluded that
+there is a strong relationship. The R-squared is the exact same at
+0.913. The p-values are very low. All of this is expected, what will be
+more interesting is the residuals.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ cdf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ us_death, }\DataTypeTok{y =}\NormalTok{ nh_cases_vs_us_cases}\OperatorTok{$}\NormalTok{residuals}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{anova}\NormalTok{(nh_cases_vs_us_cases)}\OperatorTok{$}\StringTok{"Mean Sq"}\NormalTok{[}\DecValTok{2}\NormalTok{]))) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"US Cases"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Standardized Residuals"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"Standardized Residuals Plot"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/graph-residuals-deaths-1.pdf}
+
+The result is exactly as predicted after seeing the initial graph. This
+tells the same story as the cases graph but shifted a little bit to the
+right because the death from any given case is likely to happen several
+weeks to a month later.
+
+\hypertarget{question-4-are-treatments-improving-over-time}{%
+\subsection{Question 4: Are Treatments Improving Over
+Time?}\label{question-4-are-treatments-improving-over-time}}
+
+This is the further analysis for the observation that was made at the
+end of the second question. Is the case fatality rate dropping over
+time? This was also not a question I initially asked when planning out
+this project, but one that arose out of looking at the data.
+
+We can begin this analysis like we have the others, coming up with some
+preliminary graphs. We can re-use the cdf data frame from earlier.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ cdf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ nh_positive, }\DataTypeTok{y =}\NormalTok{ nh_death)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"NH Cases"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"NH Deaths"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"New Hampshire"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/graph-nh-cases-vs-deaths-1.pdf}
+
+This is interesting, it tells a similar story as the graph relating NH
+deaths and US deaths. A possible explanation for this is that it
+coincides with the majority of deaths from the first wave. Perhaps New
+Hampshire hospitals were overwhelmed and unable to give everyone sick
+the best treatments that were available. The curve appears to flatten
+afterwards relative to before the hump so perhaps treatments improved as
+a result. The linear model is the next step.
+
+\[H_{0}: \beta_{1} = 0\] \[H_{0}: \beta_{2} \neq 0\]
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{nh_model =}\StringTok{ }\KeywordTok{lm}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ cdf, nh_death }\OperatorTok{~}\StringTok{ }\NormalTok{nh_positive)}
+\KeywordTok{summary}\NormalTok{(nh_model)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = nh_death ~ nh_positive, data = cdf)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -164.732  -32.345   -7.046   44.267   66.506 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) 6.9400327  5.8722199   1.182    0.238    
+## nh_positive 0.0528382  0.0009472  55.786   <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 48.03 on 247 degrees of freedom
+## Multiple R-squared:  0.9265, Adjusted R-squared:  0.9262 
+## F-statistic:  3112 on 1 and 247 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+We can reject the null hypothesis. Interestingly, the intercept is not
+significant, but the slope is extremely significant and the R-squared is
+very high. The most interesting part of this model is that the slope
+that is given is 0.0528, meaning that on average across the whole
+pandemic, the case fatality rate has been about 5.28\%.
+
+We can look at the residuals plot.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ cdf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ nh_positive, }\DataTypeTok{y =}\NormalTok{ nh_model}\OperatorTok{$}\NormalTok{residuals}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{anova}\NormalTok{(nh_model)}\OperatorTok{$}\StringTok{"Mean Sq"}\NormalTok{[}\DecValTok{2}\NormalTok{]))) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"NH Cases"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Standardized Residuals"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"Standardized Residuals Plot"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/graph-residuals-nh-1.pdf}
+
+Interesting, while this is a concerning residuals plot, it bodes well
+for the conclusions that are being developed thus far. The line (and
+thus the y = 0 on this plot) is pulled up by all the deaths that
+occurred in the hump, the hump itself is explained above, and the fall
+to below -3 can be explained by the aforementioned flattening of the
+curve because of treatments developed during the first wave.
+
+The slope of the line puts the case fatality rate in New Hampshire at
+about 5.28\% averaged across the pandemic, while the final numbers on
+November 7 (489/12241) put the cumulative case fatality rate at about
+4\%. This provides further support that perhaps the case fatality rate
+is falling over time.
+
+We can and should repeat this analysis for the entire United States.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ cdf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ us_positive, }\DataTypeTok{y =}\NormalTok{ us_death)) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"US Cases"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"US Deaths"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"United States"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/graph-us-cases-vs-deaths-1.pdf}
+This graph makes a lot of sense, knowing what we know from previous
+analysis, we can explain that the initial hump is due to the first wave
+in the May and June months, and a strain on the health care system as
+beds fill up. Additionally, the graph is appearing to flatten out as
+time goes on, supporting the notion that the case fatality rate is
+falling.
+
+\[H_{0}: \beta_{1} = 0\] \[H_{0}: \beta_{2} \neq 0\]
+
+Again, we make the linear model.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{us_model =}\StringTok{ }\KeywordTok{lm}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ cdf, us_death }\OperatorTok{~}\StringTok{ }\NormalTok{us_positive)}
+\KeywordTok{summary}\NormalTok{(us_model)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Call:
+## lm(formula = us_death ~ us_positive, data = cdf)
+## 
+## Residuals:
+##    Min     1Q Median     3Q    Max 
+## -33578 -13312   2642  15224  29911 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept) 3.272e+04  2.024e+03   16.17   <2e-16 ***
+## us_positive 2.350e-02  4.334e-04   54.22   <2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 19620 on 247 degrees of freedom
+## Multiple R-squared:  0.9225, Adjusted R-squared:  0.9222 
+## F-statistic:  2940 on 1 and 247 DF,  p-value: < 2.2e-16
+\end{verbatim}
+
+As expected, the null hypothesis can be rejected, the p-values for both
+the intercept and slope are incredibly small. The R-squared is again
+very high. The most interesting take-away from this is that the case
+fatality rate (slope) is 2.35\%, half that of New Hampshire.
+
+We can look at the residuals plot.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ cdf, }\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ us_positive, }\DataTypeTok{y =}\NormalTok{ us_model}\OperatorTok{$}\NormalTok{residuals}\OperatorTok{/}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{anova}\NormalTok{(us_model)}\OperatorTok{$}\StringTok{"Mean Sq"}\NormalTok{[}\DecValTok{2}\NormalTok{]))) }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_point}\NormalTok{() }\OperatorTok{+}\StringTok{ }\KeywordTok{xlab}\NormalTok{(}\StringTok{"US Cases"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ylab}\NormalTok{(}\StringTok{"Standardized Residuals"}\NormalTok{) }\OperatorTok{+}\StringTok{ }\KeywordTok{ggtitle}\NormalTok{(}\StringTok{"Standardized Residuals Plot"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{STAT-383-Final-Project_files/figure-latex/graph-residuals-us-1.pdf}
+
+This again repeats the same story that was told in NH but to a less
+extreme degree. None of the residuals ever get below -2. Interestingly,
+the line begins well below y = 0 and flies upwards, this is likely as
+hospitals begin to run out of resources in the early phases of the
+pandemic. The slow fall later on is likely because treatments improve
+over time.
+
+The slope of the line puts the case fatality rate in the United States
+at about 2.35\% averaged across the pandemic, while the final numbers on
+November 7 (229238/9761481) put the cumulative case fatality rate at
+about 2.34\%. This does not provide any evidence that the case fatality
+rate has fallen over time. This is very interesting.
+
+\end{document}
